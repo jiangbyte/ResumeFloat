@@ -22,3 +22,8 @@ commands.allow = ["export_bundle"]
 identifier = "allow-import-bundle"
 description = "Allows importing database and assets"
 commands.allow = ["import_bundle"]
+
+[[permission]]
+identifier = "allow-set-pin-above"
+description = "Allows toggling always-on-top pin"
+commands.allow = ["set_pin_above"]

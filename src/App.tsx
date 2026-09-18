@@ -13,6 +13,8 @@ import {
   MoreOutlined,
   MoonOutlined,
   PlusOutlined,
+  PushpinFilled,
+  PushpinOutlined,
   SunOutlined,
 } from "@ant-design/icons";
 import { getCurrentWindow } from "@tauri-apps/api/window";
@@ -33,12 +35,25 @@ import "./App.css";
 
 type Mode = "compact" | "edit";
 
+const ALWAYS_ON_TOP_KEY = "resumefloat-always-on-top";
+
+function loadAlwaysOnTop(): boolean {
+  const saved = localStorage.getItem(ALWAYS_ON_TOP_KEY);
+  if (saved === null) return true;
+  return saved === "1" || saved === "true";
+}
+
+function saveAlwaysOnTop(value: boolean): void {
+  localStorage.setItem(ALWAYS_ON_TOP_KEY, value ? "1" : "0");
+}
+
 function App() {
   const [mode, setMode] = useState<Mode>("compact");
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [items, setItems] = useState<ItemWithBlocks[]>([]);
   const [loading, setLoading] = useState(true);
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => loadThemeMode());
+  const [alwaysOnTop, setAlwaysOnTop] = useState(() => loadAlwaysOnTop());
   const titlebarDrag = useTitlebarDrag();
 
   const antdTheme = useMemo(() => buildTheme(themeMode), [themeMode]);
@@ -47,6 +62,13 @@ function App() {
     document.documentElement.dataset.theme = themeMode;
     saveThemeMode(themeMode);
   }, [themeMode]);
+
+  useEffect(() => {
+    saveAlwaysOnTop(alwaysOnTop);
+    void invoke("set_pin_above", { enabled: alwaysOnTop }).catch(() => {
+      void getCurrentWindow().setAlwaysOnTop(alwaysOnTop);
+    });
+  }, [alwaysOnTop]);
 
   const reload = useCallback(async () => {
     const data = await listItemsWithBlocks();
@@ -94,6 +116,10 @@ function App() {
 
   function toggleTheme() {
     setThemeMode((m) => (m === "dark" ? "light" : "dark"));
+  }
+
+  function toggleAlwaysOnTop() {
+    setAlwaysOnTop((v) => !v);
   }
 
   async function handleExport() {
@@ -145,6 +171,11 @@ function App() {
   const menu = {
     items: [
       {
+        key: "pin",
+        label: alwaysOnTop ? "取消置顶" : "窗口置顶",
+        onClick: () => toggleAlwaysOnTop(),
+      },
+      {
         key: "theme",
         label: themeMode === "dark" ? "切换浅色主题" : "切换深色主题",
         onClick: () => toggleTheme(),
@@ -185,6 +216,14 @@ function App() {
                 新增
               </Button>
             ) : null}
+            <Button
+              size="small"
+              type="text"
+              className={alwaysOnTop ? "titlebar-pin-active" : undefined}
+              icon={alwaysOnTop ? <PushpinFilled /> : <PushpinOutlined />}
+              onClick={toggleAlwaysOnTop}
+              title={alwaysOnTop ? "取消置顶" : "窗口置顶"}
+            />
             <Button
               size="small"
               type="text"

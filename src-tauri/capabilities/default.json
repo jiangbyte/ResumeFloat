@@ -35,6 +35,7 @@
     "allow-resolve-asset-path",
     "allow-export-bundle",
     "allow-import-bundle",
+    "allow-set-pin-above",
     {
       "identifier": "fs:scope",
       "allow": [

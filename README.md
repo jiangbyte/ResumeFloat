@@ -8,11 +8,11 @@
 ![SQLite](https://img.shields.io/badge/SQLite-Local-003B57?logo=sqlite&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Version](https://img.shields.io/badge/version-0.1.0-orange)
+![Version](https://img.shields.io/badge/version-0.1.1-orange)
 
 **ResumeFloat** 是一款跨平台置顶悬浮简历速拷工具：默认「标签 + 一键复制」，可切换编辑；每条内容由可动态组合的块构成（纯文本 / Markdown / 富文本 / 图片），数据落本地 SQLite，支持导出与导入。
 
-> 当前版本：`0.1.0` · 协议：[MIT License](LICENSE)
+> 当前版本：`0.1.1` · 协议：[MIT License](LICENSE)
 
 ## 目录
 

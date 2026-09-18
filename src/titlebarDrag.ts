@@ -13,7 +13,10 @@ export function useTitlebarDrag() {
   function onMouseDown(e: MouseEvent<HTMLElement>) {
     if (e.button !== 0) return;
     const el = e.target as HTMLElement | null;
-    if (el?.closest(".titlebar-actions")) return;
+    // Ant Design menus/modals render in a portal; React still bubbles to the
+    // titlebar. Ignore events whose DOM target is outside this header.
+    if (!el || !e.currentTarget.contains(el)) return;
+    if (el.closest(".titlebar-actions")) return;
 
     const now = Date.now();
     const isDouble = now - lastDownAt.current < DBLCLICK_MS;

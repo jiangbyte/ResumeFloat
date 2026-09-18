@@ -1,12 +1,38 @@
 use serde::Serialize;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Manager, PhysicalPosition, PhysicalSize};
 use tauri_plugin_sql::{Migration, MigrationKind};
 
 const DB_FILE: &str = "resume.db";
 const ASSETS_DIR: &str = "assets";
+
+/// Desired always-on-top state (frontend preference synced via command).
+static PIN_ABOVE: AtomicBool = AtomicBool::new(true);
+
+fn apply_always_on_top(win: &tauri::WebviewWindow, enabled: bool) {
+    PIN_ABOVE.store(enabled, Ordering::Relaxed);
+    let _ = win.set_always_on_top(enabled);
+
+    #[cfg(target_os = "linux")]
+    {
+        use gtk::prelude::GtkWindowExt;
+        if let Ok(gtk_win) = win.gtk_window() {
+            gtk_win.set_keep_above(enabled);
+        }
+    }
+}
+
+#[tauri::command]
+fn set_pin_above(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let win = app
+        .get_webview_window("main")
+        .ok_or_else(|| "main window missing".to_string())?;
+    apply_always_on_top(&win, enabled);
+    Ok(())
+}
 
 #[derive(Clone, Copy)]
 struct NormalGeom {
@@ -22,12 +48,18 @@ fn attach_no_maximize(win: tauri::WebviewWindow) {
 
     #[cfg(target_os = "linux")]
     {
-        use gtk::prelude::GtkWindowExt;
+        use gtk::prelude::{GtkWindowExt, WidgetExt};
         if let Ok(gtk_win) = win.gtk_window() {
             // Utility windows are less likely to be edge-snapped / maximized by the WM.
+            // Changing type_hint resets keep-above; re-apply after map as well.
             gtk_win.set_type_hint(gdk::WindowTypeHint::Utility);
+            let win_for_map = win.clone();
+            gtk_win.connect_map(move |_| {
+                apply_always_on_top(&win_for_map, PIN_ABOVE.load(Ordering::Relaxed));
+            });
         }
     }
+    apply_always_on_top(&win, PIN_ABOVE.load(Ordering::Relaxed));
 
     let init = NormalGeom {
         x: win.outer_position().map(|p| p.x).unwrap_or(100),
@@ -322,7 +354,8 @@ CREATE INDEX IF NOT EXISTS idx_items_sort ON items(sort_order);
             save_asset,
             resolve_asset_path,
             export_bundle,
-            import_bundle
+            import_bundle,
+            set_pin_above
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
