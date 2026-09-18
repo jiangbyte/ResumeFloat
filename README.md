@@ -94,7 +94,9 @@ pnpm tauri:dev
 pnpm tauri:build
 ```
 
-Linux 默认产出 `deb` / `rpm`（见 `src-tauri/tauri.conf.json`），目录：`src-tauri/target/release/bundle/`。也可直接运行 `src-tauri/target/release/resumefloat`。Windows / macOS 请在对应系统执行同一命令。
+本地产出目录：`src-tauri/target/release/bundle/`（`deb` / `rpm` / `nsis` / `dmg`，视当前系统而定）。也可直接运行 `src-tauri/target/release/resumefloat`。Windows / macOS 请在对应系统执行同一命令。
+
+推送 `v*` 标签（例如 `v0.1.0`）会触发 GitHub Actions，自动构建各平台安装包并发布 [GitHub Release](https://github.com/jiangbyte/ResumeFloat/releases)。macOS 包未公证；首次打开需右键选择「打开」，或在「系统设置 → 隐私与安全性」中允许。
 
 ## 常用命令
 
