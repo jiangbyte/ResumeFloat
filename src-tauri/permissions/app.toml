@@ -1,0 +1,24 @@
+[[permission]]
+identifier = "allow-get-paths"
+description = "Allows reading app data paths"
+commands.allow = ["get_paths"]
+
+[[permission]]
+identifier = "allow-save-asset"
+description = "Allows saving image assets"
+commands.allow = ["save_asset"]
+
+[[permission]]
+identifier = "allow-resolve-asset-path"
+description = "Allows resolving asset absolute paths"
+commands.allow = ["resolve_asset_path"]
+
+[[permission]]
+identifier = "allow-export-bundle"
+description = "Allows exporting database and assets"
+commands.allow = ["export_bundle"]
+
+[[permission]]
+identifier = "allow-import-bundle"
+description = "Allows importing database and assets"
+commands.allow = ["import_bundle"]
